@@ -230,24 +230,6 @@ def _fb_smooth_result(
             pass
         return None
     
-def __setup_ax():
-    fig, ax = plt.subplots(1,1)
-    fig.subplots_adjust(bottom=0.2)
-        
-            # [left, bottom, width, height]
-    axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
-    axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
-    # TODO: Add exit button
-    button_save = Button(axnext, 'Save',
-                            color='lightgoldenrodyellow',
-                            hovercolor='0.975')
-    button_skip = Button(axprev, 'Skip',
-                            color='lightgoldenrodyellow',
-                            hovercolor='0.975')
-    
-    return fig, ax, button_save, button_skip
-
-    
 def fb_show_prediction(shots: List[torch.Tensor],
                     predicted_segments: List[torch.Tensor],
                     predicted_picks: List[torch.Tensor],
@@ -259,38 +241,21 @@ def fb_show_prediction(shots: List[torch.Tensor],
                     x_axis: np.ndarray=None,
                     y_axis: np.ndarray=None,) -> None:
     """
-    A function to visulaize the result
-
-    Parameters
-    ----------
-    shot : torch.Tensor
-        A shot gather
-    predicted_segment : torch.Tensor
-        _description_
-    predicted_pick : torch.Tensor
-        _description_
-    n : int
-        _description_
-    n_data : int
-        _description_
-    true_mask : torch.Tensor, optional
-        _description_, by default None
-    save_segmentation: bool, optional
-        Specify if user desires to save the segmentation, by default False
-
+    Функция для визуализации и сохранения результатов без использования GUI
     """
+    import matplotlib
+    matplotlib.use('Agg')  # Установка неинтерактивного бэкенда
+    import matplotlib.pyplot as plt
+    
     n_shots = len(shots)
     for i in range(n_shots):
-        (fig, ax, button_save, button_skip) = __setup_ax()
+        fig, ax = plt.subplots(1,1)
         
         m,n = shots[i].shape
-        ax.imshow(shots[i], aspect="auto", cmap="gray",
-                #   extent=[0, n, m*dt, 0]
-                  )
+        ax.imshow(shots[i], aspect="auto", cmap="gray")
         ax.imshow(predicted_segments[i], aspect="auto", 
-                  cmap="coolwarm", alpha=0.1,
-                #   extent=[0, n, m*dt, 0]
-                  )
+                 cmap="coolwarm", alpha=0.1)
+        
         try:
             ax.plot(predicted_picks[i], label="Predicted")
             if true_masks[0] is not None:
@@ -303,29 +268,25 @@ def fb_show_prediction(shots: List[torch.Tensor],
         ax.set_xlabel("Trace Number")
         ax.set_ylabel("Time Step")
             
+        # Сохраняем изображение
+        fig.savefig(f"{path_save_fb}/shot_{ffids[i]}.png", 
+                   bbox_inches='tight', 
+                   dpi=300)
+        
         if not save_segmentation:
             predicted_segments[i] = None
             
-        a = plt.waitforbuttonpress()
-        if a is False:
-            button_save.on_clicked(
-                __save_fb(path_save_fb,
-                    fbt_file_name=ffids[i],
-                    n_trace=shots[i].shape[1],
-                    predicted_segments=predicted_segments[i],
-                    predicted_pick=predicted_picks[i],
-                    dt=dt, comment=f"{i+1}/{n_shots}")
-            )
+        # Сохраняем результаты в JSON
+        save_fb(path_save_fb=path_save_fb,
+               fbt_file_name=ffids[i],
+               n_trace=shots[i].shape[1],
+               predicted_segments=predicted_segments[i],
+               predicted_pick=predicted_picks[i],
+               dt=dt,
+               comment=f"{i+1}/{n_shots}")
         
-            button_skip.on_clicked(
-                skip(fbt_file_name=ffids[i], comment=f"{i+1}/{n_shots}")
-                )
+        plt.close(fig)
 
-            plt.pause(0.5)
-        #TODO : optimize here
-        fig.clear()
-        plt.close()
-        
 
 def skip(fbt_file_name: str,
          comment: str) :   
