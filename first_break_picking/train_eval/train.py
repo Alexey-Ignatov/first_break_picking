@@ -28,6 +28,9 @@ from first_break_picking.train_eval.metrics import check_accuracy
 import first_break_picking.train_eval.parameter_tools as pt
 import first_break_picking.train_eval.ai_tools as tools
 
+
+
+
 def train(base_dir: str,
          batch_size: int, 
          val_percentage: float,
@@ -143,6 +146,12 @@ def train(base_dir: str,
         val_fraction=val_percentage,
         batch_size=batch_size, 
         problem=type_of_problem)
+    print("base_dir",base_dir)
+    _, val_dl_exp = get_loaders(
+        data_dir=['./data/exp_data'],
+        val_fraction=.5,
+        batch_size=batch_size, 
+        problem=type_of_problem)
     
     optimizer, scaler, scheduler = pt.setup_optimizer(
         model=model, 
@@ -194,6 +203,7 @@ def train(base_dir: str,
         model.eval()
         train_plot.plot(model=model,
                         train_dl=train_dl,
+                        #val_dl=val_dl_exp,
                         val_dl=val_dl,
                         train_loss=metrics["train_loss"],
                         validation_loss = metrics["valid_loss"],

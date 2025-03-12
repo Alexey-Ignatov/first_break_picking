@@ -158,7 +158,9 @@ class Predictor:
         data_info = data_info.set_index("shot_id")
         
         # nsp:  data.shape=[1, 2, 1, 512, 32]
+        print("predict_ndarray_fb before upsampler::data",data.shape)
         data, _ = self.upsampler(data.squeeze(0), data.squeeze(0))
+        print("predict_ndarray_fb after upsampler::data",data.shape)
         #nsp:  data.shape= [2, 512, 512])
         # data = data.unsqueeze(1)
         
@@ -204,6 +206,7 @@ class Predictor:
                 type_of_problem=self.type_of_problem,
                 smoothing_value=self.smoothing_value
                 )
+        print("predict::data",data.shape)
             
         shot, predicted_pick, predicted_segment = self.predict_test(
                     batch=data, 
@@ -212,7 +215,6 @@ class Predictor:
                     overlap=self.overlap,
                     shot_id=ffid,
                     smoothing_threshold=self.smoothing_threshold,
-                    upsampler=self.upsampler,
                     data_info=data_info,
                     case_specific_parameters=self.case_specific_parameters
                 )
@@ -372,11 +374,12 @@ def predict(base_dir: str,
         else:
             for shot_number, (batch, fbt_file_name) in enumerate(loop):
                 fbt_file_name = fbt_file_name[0]
-                
+                print("predict::batch::before upsampler",batch)
                 # nsp:  data.shape=[1, 3, 1, 512, 22]
                 batch, _ = upsampler(batch.squeeze(0), batch.squeeze(0))
                 #nsp:  data.shape= [3, 1, 512, 512])
-                
+                print("predict::batch::after upsampler",batch)
+                print("predict::fbt_file_name",fbt_file_name)
                 shot, predicted_pick, predicted_segment = predict_test(
                     batch=batch.unsqueeze(0), 
                     model=model,

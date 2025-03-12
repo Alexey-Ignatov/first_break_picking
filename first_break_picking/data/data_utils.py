@@ -641,6 +641,8 @@ def shot_to_gray_scale(data: np.ndarray) -> np.ndarray:
     """
     nom = data - np.mean(data, axis=0)
     denom = 2 * (np.max(data, axis=0) - np.min(data, axis=0))
+    # if denom.all() < 0.000001:
+    #     print("denom", denom)
     data = 255 * (nom/ denom + 0.5)
     data[np.isnan(data)] = 0
     return data

@@ -142,7 +142,6 @@ def get_loaders(data_dir: List[str],
         data_dir, 
         val_fraction,
         problem=problem)
-    
     train_dl = DataLoader(dataset=train_dataset, 
                           batch_size=batch_size, shuffle=True)
     val_dl = DataLoader(dataset=val_dataset, 

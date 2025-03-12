@@ -380,6 +380,25 @@ class TrainFigure:
              upsampler):
         
         with torch.no_grad():
+
+
+            # example_shot_val, _, __ = next(iter(val_dl))
+            # example_shot_train, _, __ = next(iter(train_dl))
+            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
+            # print("before load")
+            # example_shot_val = np.load('data/preprocessed/dataset1/test/107534_803.npy')
+
+            # example_shot_val = general_transform()(example_shot_val).float()
+            # example_shot_val = example_shot_val[np.newaxis,  ...]
+            
+            # #example_shot_val = example_shot_val.to(device=device)
+            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
+            # example_shot_val, __ = upsampler(example_shot_val, _)
+            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
+            # example_val = model(example_shot_val.to(device=device))
+            
+
+
             example_shot_val, _, __ = next(iter(val_dl))
             example_shot_train, _, __ = next(iter(train_dl))
             

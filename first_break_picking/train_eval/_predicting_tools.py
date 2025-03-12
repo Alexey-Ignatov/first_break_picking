@@ -25,6 +25,10 @@ def get_downsample_points(n_time_sampels: int,
                           split_nt: int,
                           n_trace: int, 
                           overlap: float) -> Tuple[torch.nn.Upsample, list]:
+    print("n_time_sampels",n_time_sampels)
+    print("split_nt",split_nt)
+    print("n_trace",n_trace)
+    print("overlap",overlap)
     downsample = torch.nn.Upsample(size=(n_time_sampels, split_nt))
     points = data_tools.starting_points(n_traces=n_trace, split_nt=split_nt, overlap=overlap)
     points.append(n_trace)
@@ -148,12 +152,14 @@ def fb_predict_test(
         )
 
     # batch [1, n_subshot, 1, n_upsample_row, n_upsample_col]
+    print("shot_id",shot_id)
+    print("batch",batch)
     batch = batch.squeeze(0).to(device=device)
     n_subshots = batch.shape[0]
     
     # batch, _ = upsampler(
     #     batch, batch)
-    
+    print("batch",batch.shape)
     predicted, prob = predict( # Check why I use prob here but not for validation
         model=model, data=batch,
         binary=False)
@@ -208,27 +214,30 @@ def _fb_smooth_result(
     """
     
     pick = torch.zeros(n_trace, dtype=int)
-    try:
-        for i in range(n_trace):
-            count = 0
-            ones = torch.argwhere(predicted[:, i]==1).view(-1)
-            while True:
-                a = sum(predicted[ones[count]:ones[count]+threshold, i])
-                b = sum(predicted[ones[count+1]:ones[count+1]+threshold, i])
-                if a == b:
-                    pick[i] = ones[count].item()
-                    break
-                else:
-                    count += 1
-                    
-        return pick
-    except:
-        if shot_id:
-            print(f"Not possible to pick an appropriate time for shot {shot_id}. "
-                "You can use a smaller smoothing_threshold.")
-        else:
-            pass
-        return None
+    #try:
+    for i in range(n_trace):
+        count = 0
+        ones = torch.argwhere(predicted[:, i]==1).view(-1)
+        while True:
+            a = sum(predicted[ones[count]:ones[count]+threshold, i])
+            b = sum(predicted[ones[count+1]:ones[count+1]+threshold, i])
+            #print("a,b",a,b)
+            # print("count",count)
+            # print(ones.shape)
+            if a == b or count >= ones.shape[0] - 2:
+                pick[i] = ones[count].item()
+                break
+            else:
+                count += 1
+                
+    return pick
+    # except:
+    #     if shot_id:
+    #         print(f"Not possible to pick an appropriate time for shot {shot_id}. "
+    #             "You can use a smaller smoothing_threshold.")
+    #     else:
+    #         pass
+    #     return None
     
 def fb_show_prediction(shots: List[torch.Tensor],
                     predicted_segments: List[torch.Tensor],

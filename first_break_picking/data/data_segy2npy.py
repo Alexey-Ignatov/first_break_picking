@@ -57,7 +57,7 @@ def load_one_general_file(data_path: str,
     data = torch.empty((1, len(sub_shots), 1, sub_shots[0].shape[0], sub_shots[0].shape[1]))
     for i, sub in enumerate(sub_shots):
         data[0, i, 0, ...] = _transformer(sub)
-            
+    print("load_one_general_file::data",data.shape)
     return data, data_info
      
 
@@ -136,13 +136,16 @@ def save_shots_fb(dataset_dir: str,
             grayscale=grayscale,
             dt=dt
             )
+        #print("shot_name", shot_name)
+        #print("sub_shots", sub_shots)
         
         data_info[[*info][0]] = info[[*info][0]]
         
         if sub_fbs[0] is not None:
+            #print("sub_fbs", sub_fbs)
             save_train_npy(
                 shots = sub_shots,
-                labels = np.int32(sub_fbs),
+                labels =  [np.int32(arr) for arr in sub_fbs],
                 file_name=f"{dir_to_save}/{ffid}"
                 ) 
         else:
@@ -216,6 +219,7 @@ def _save_final_npy(data: np.ndarray,
     _type_
         _description_
     """
+    #print("data", data)
     if count is None:
         np.save(file_name, data)
     else:

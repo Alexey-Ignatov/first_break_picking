@@ -166,14 +166,16 @@ def _read_shot_fb(data_path: str,
     else:
         raise RuntimeError("Diles with extension of '.npy' and '.sgy' can be loaded"
                            f", but got .{shot_ext}")
-        
+    
+    #print("shot", shot)
+    #print("shot_name", shot_name)
     if time_window is not None:
         shot = shot[time_window[0]:time_window[1], :]
     if scale:
         shot = data_tools.data_normalize_and_limiting(data=shot)
     if grayscale:
         shot = data_tools.shot_to_gray_scale(shot)
-
+    #print("shot", shot)
     points = data_tools.starting_points(shot.shape[1], split_nt, overlap)
     sub_shots = data_tools.shot_spliting(
         shot=shot,

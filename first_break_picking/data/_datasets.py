@@ -58,6 +58,7 @@ class FirstBreakOneShot(Dataset):
         self.files.sort()
         self.validation = with_label
         self.shots_id = list(self.data_info.index)
+        print(self.shots_id)
         self.set_transforms() 
         self.count = 0
         self.files = tools.delete_ds_store(files=self.files)
@@ -69,6 +70,7 @@ class FirstBreakOneShot(Dataset):
         index = self.count
 
         main_shot_name = self.shots_id[index]
+        #print("index", index, "main_shot_name", main_shot_name)
         bs = self.data_info.loc[main_shot_name][1]
         if bs>1: 
             files = [f"{main_shot_name}_{i}.npy" for i in range(bs)]
