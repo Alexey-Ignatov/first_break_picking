@@ -19,6 +19,13 @@ import numpy as np
 from torch.utils.data import DataLoader
 import pandas as pd 
 
+# Add IPython display for Jupyter compatibility
+try:
+    from IPython import display as ipd
+    JUPYTER_AVAILABLE = True
+except ImportError:
+    JUPYTER_AVAILABLE = False
+
 from first_break_picking.train_eval.unet import UNet
 import first_break_picking.train_eval.metrics as M
 import first_break_picking.train_eval.ai_tools as tools
@@ -297,6 +304,8 @@ class TrainFigure:
         cmap_mask = "coolwarm"
         
         self.legend = None
+        self.in_jupyter = JUPYTER_AVAILABLE
+        
         if plot:
             cmap = plt.get_cmap(cmap, n_segments)
             cmap_mask = plt.get_cmap(cmap_mask, n_segments)
@@ -336,8 +345,8 @@ class TrainFigure:
             self.plot = self.__plot_results
             self.fig.subplots_adjust(hspace=0.23)
         else:
-            # for avoiding if, this method exis
-            self.__plot = self.__plot_skip
+            # for avoiding if, this method exists
+            self.plot = self.__plot_skip
 
     def plot(self, model, 
              train_dl: DataLoader,
@@ -348,7 +357,7 @@ class TrainFigure:
              device: str,
              epoch: int):
         
-        self.__plot(model,
+        self.plot(model,
                     train_dl,
                         val_dl,
                         train_loss,
@@ -380,35 +389,14 @@ class TrainFigure:
              upsampler):
         
         with torch.no_grad():
-
-
-            # example_shot_val, _, __ = next(iter(val_dl))
-            # example_shot_train, _, __ = next(iter(train_dl))
-            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
-            # print("before load")
-            # example_shot_val = np.load('data/preprocessed/dataset1/test/107534_803.npy')
-
-            # example_shot_val = general_transform()(example_shot_val).float()
-            # example_shot_val = example_shot_val[np.newaxis,  ...]
-            
-            # #example_shot_val = example_shot_val.to(device=device)
-            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
-            # example_shot_val, __ = upsampler(example_shot_val, _)
-            # print("__plot_results::example_shot_val.shape",example_shot_val.shape)
-            # example_val = model(example_shot_val.to(device=device))
-            
-
-
             example_shot_val, _, __ = next(iter(val_dl))
             example_shot_train, _, __ = next(iter(train_dl))
             
-            # example_shot_val = example_shot_val.to(device=device)
             example_shot_val, __ = upsampler(example_shot_val, _)
             example_val = model(example_shot_val.to(device=device))
             
             example_val = torch.argmax(torch.softmax(example_val, dim=1), dim=1).cpu()
             
-            # example_shot_train = example_shot_train
             example_shot_train, __ = upsampler(example_shot_train, _)
             example_train = model(example_shot_train.to(device=device))
             
@@ -448,7 +436,18 @@ class TrainFigure:
             
             self.__set_legend(example_train[0, ...])
             
-            plt.pause(.2)
+            # Display the updated figure properly in Jupyter
+            self.__display_figure()
+    
+    def __display_figure(self):
+        """Display the figure properly in both Jupyter and non-Jupyter environments"""
+        if self.in_jupyter:
+            # Use IPython display for Jupyter notebooks
+            ipd.clear_output(wait=True)
+            ipd.display(self.fig)
+        else:
+            # Use plt.pause for non-Jupyter environments
+            plt.pause(0.2)
     
     def __set_legend_inactive(self, a) :
         """ 
