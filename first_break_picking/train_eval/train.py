@@ -146,12 +146,12 @@ def train(base_dir: str,
         val_fraction=val_percentage,
         batch_size=batch_size, 
         problem=type_of_problem)
-    print("base_dir",base_dir)
-    _, val_dl_exp = get_loaders(
-        data_dir=['./data/exp_data'],
-        val_fraction=.5,
-        batch_size=batch_size, 
-        problem=type_of_problem)
+    # print("base_dir",base_dir)
+    # _, val_dl_exp = get_loaders(
+    #     data_dir=['./data/exp_data'],
+    #     val_fraction=.5,
+    #     batch_size=batch_size, 
+    #     problem=type_of_problem)
     
     optimizer, scaler, scheduler = pt.setup_optimizer(
         model=model, 
