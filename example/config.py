@@ -1,7 +1,7 @@
 #%% ============ Initiate ===============
-num_epcohs = 8
+num_epcohs = 3
 
-batch_size = 15
+batch_size = 30
 split_nt = 64
 
 val_percentage = 0.1
@@ -10,4 +10,4 @@ upsampled_size = 256
 overlap = 0.85
 dt = 0.004
 
-step_size_milestone = 15
+step_size_milestone = 1
