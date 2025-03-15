@@ -1,7 +1,7 @@
 #%% ============ Initiate ===============
-num_epcohs = 3
+num_epcohs = 2
 
-batch_size = 30
+batch_size = 10
 split_nt = 64
 
 val_percentage = 0.1
